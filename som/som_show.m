@@ -211,6 +211,9 @@ function h=som_show(sMap, varargin)
 %
 % 'subplots'  the number of subplots in y- and x-directions, as in 
 %    (vector) command SUBPLOT
+%
+% 'title_intepreter'  Whether to interpret subplot titles as LaTeX ('tex') 
+%    (string)         or not ('none', default)
 % 
 % OUTPUT ARGUMENTS
 %
@@ -375,6 +378,10 @@ if isempty(General.edgecolor)
   General.edgecolor='none';
 end
 
+if isempty(General.title_interpreter)
+  General.title_interpreter='none';
+end
+
 %% Action %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get rid of an annoying warning: "RGB color data not yet supported in
@@ -515,9 +522,9 @@ SOM_SHOW.comp_norm=sMap.comp_norm; %(General.comp(find(General.comp>0)));
 
 set(gcf,'UserData', SOM_SHOW);
 
-% Set text property 'interp' to 'none' in title texts
+% Set how title texts are interpreted ('none' (default) or 'tex')
 
-set(h_label,'interpreter','none');
+set(h_label,'interpreter',General.title_interpreter);
 
 h_colorbar=som_recolorbar('all', 3, General.scale);   %refresh colorbars
 
@@ -554,6 +561,7 @@ General.edgecolor=[];       % edge colors
 General.footnote=name;      % footnote text
 General.colormap=colormap;  % default colormap (used to be gray(64).^.5;)
 General.subplots=[];        % number of subplots in y- and x-directions
+General.title_interpreter=''; % interpreter for title text ('none' or 'tex')
 
 for i=1:2:length(args),
   %% Check that all argument types are strings
@@ -773,6 +781,18 @@ for i=1:2:length(args),
       error('Subplots grid size is invalid!');
     else
       General.subplots=value; 
+    end
+
+  case 'title_interpreter'
+    %%% Set the interpreter used for title text
+    if ~vis_valuetype(value,{'string'}) && ~isempty(value),
+      error('String value expected for ''title_interpreter''.')
+    elseif isempty(value),
+      General.edgecolor=value;
+    elseif ismember(value, {'none', 'tex'}),
+      General.edgecolor=value;
+    else
+      error('String value ''none'' or ''tex'' expected for ''title_interpreter''.')  
     end
     
   otherwise
